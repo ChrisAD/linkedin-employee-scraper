@@ -58,7 +58,7 @@ var allTitles = [];
                     var search = "page=";
                     //Make sure page is present. allows script to run from https://www.linkedin.com/search/results/people/?facetCurrentCompany=[<id>]
                     if(url.indexOf("page=") == -1) {
-                        url = url+"&page=0";
+                        url = url+"&page=1";
                         changeIndex = url.indexOf("page=")+search.length;
                     }
                     var changeIndex = url.indexOf("page=")+search.length;
