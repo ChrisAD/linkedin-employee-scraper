@@ -78,9 +78,7 @@ var allTitles = [];
                     var uniqueAll = combined.filter((v, i, a) => a.indexOf(v) === i);
 
                     console.log("Collected " + uniqueAll.length + " employees and titles..");
-                    for(var j=0; j < uniqueAll.length; j++) {
-                        console.log(uniqueAll[j] + "\n");
-                    }
+                    console.log(uniqueAll);
                     GM_deleteValue("employees");
                     GM_deleteValue("titles");
                 };
