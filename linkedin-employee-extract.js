@@ -62,8 +62,9 @@ var allTitles = [];
                         changeIndex = url.indexOf("page=")+search.length;
                     }
                     var changeIndex = url.indexOf("page=")+search.length;
-                    var newPage = parseInt(url.substring(changeIndex, changeIndex+1)) + 1;
-                    url = url.substring(0,url.length -1) + newPage;
+                    var curPage = parseInt(url.substring(changeIndex, url.length));
+                    var newPage = curPage +1;
+                    url = url.substring(0,url.length - curPage.toString().length) + newPage;
                     if(debug) console.log("Loading url: " + url);
                     window.location.replace(url);
                 } else {
