@@ -18,11 +18,11 @@ var debug = false;
 (function() {
     'use strict';
 
-if(debug) console.log("Greasemonkey-linkedin script loaded");
+    if(debug) console.log("Greasemonkey-linkedin script loaded");
 
-var scroll = 250;
-var allEmps = [];
-var allTitles = [];
+    var scroll = 250;
+    var allEmps = [];
+    var allTitles = [];
     function printnames() {
         if(debug) console.log("Entering printnames()");
         setTimeout(function() {
@@ -43,15 +43,20 @@ var allTitles = [];
                 //Get previously stored values from userscript
                 var allEmpsPrev = JSON.parse(GM_getValue("employees",null)); if(allEmpsPrev == null) allEmpsPrev = [];
                 var allTitlesPrev = JSON.parse(GM_getValue("titles",null)); if(allTitlesPrev == null) allTitlesPrev = [];
+                if(debug) console.log(allEmps)
                 //Combine previous results with current
                 var joinedEmps = allEmps.concat(allEmpsPrev);
                 var joinedTitles = allTitles.concat(allTitlesPrev);
-                //Save values in userscript
-                if(debug) console.log("Done with page, pushing Employees into userscript storage: " + JSON.stringify (joinedEmps));
-                if(debug) console.log("Done with page, pushing Titles into userscript storage: " + JSON.stringify (joinedTitles));
-                GM_setValue("employees",JSON.stringify(joinedEmps) );
-                GM_setValue("titles",JSON.stringify(joinedTitles));
-                if($(".next").length > 0) {
+
+                //If allEmps.length == 0 we have reached a page without any employee data. so assume we are on last page+1:
+                if(allEmps.length > 0) {
+                    if(debug) console.log("allEmps != null")
+                    //Save values in userscript
+                    if(debug) console.log("Done with page, pushing Employees into userscript storage: " + JSON.stringify (joinedEmps));
+                    if(debug) console.log("Done with page, pushing Titles into userscript storage: " + JSON.stringify (joinedTitles));
+                    GM_setValue("employees",JSON.stringify(joinedEmps) );
+                    GM_setValue("titles",JSON.stringify(joinedTitles));
+
                     //Parse URL and load new URL instead of clicking the Next button. Clicking next is normally acceptable, but LinkedIn is weird, and doesn't properly reload the URL, hence doesn't trigger the userscript
                     var url = window.location.href;
                     if(debug) console.log("url orig: " + url);
@@ -62,11 +67,13 @@ var allTitles = [];
                         changeIndex = url.indexOf("page=")+search.length;
                     }
                     var changeIndex = url.indexOf("page=")+search.length;
-                    var newPage = parseInt(url.substring(changeIndex, changeIndex+1)) + 1;
-                    url = url.substring(0,url.length -1) + newPage;
+                    var curPage = parseInt(url.substring(changeIndex, url.length));
+                    var newPage = curPage +1;
+                    url = url.substring(0,url.length - curPage.toString().length) + newPage;
                     if(debug) console.log("Loading url: " + url);
                     window.location.replace(url);
                 } else {
+                    if(debug) console.log("allEmps == null")
                     //Combine names and titles
                     var combined = [];
                     for(var i=0; i < joinedEmps.length; i++) {
