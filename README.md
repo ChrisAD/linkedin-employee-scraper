@@ -4,4 +4,4 @@ Extract all employees from LinkedIn. Especially useful for companies with thousa
 This youtube video shows the script in action: https://www.youtube.com/watch?v=13CCngpBD_Y
 
 Twitter: https://twitter.com/@chrisadale
-Company: https://netsecurity.no/en/
+Company: https://riversecurity.eu
