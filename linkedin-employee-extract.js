@@ -19,40 +19,51 @@ var debug = false;
     'use strict';
 
     if (debug) console.log("Greasemonkey-linkedin script loaded");
-
-    var scroll = 250;
     var allEmps = [];
     var allTitles = [];
     function printnames() {
         if (debug) console.log("Entering printnames()");
         setTimeout(function () {
-            $(".actor-name").map(function () {
-                if (this && this.innerHTML) {
-                    allEmps.push(this.innerHTML);
+            var codeElems=document.getElementsByTagName("code");
+            var peopleJsonId=0;
+            for(var i=0;i<codeElems.length;i++) {
+                if(codeElems[i].innerText.search("SearchClusterCollectionMetadata")>0) {
+                    peopleJsonId=i;
                 }
-            });
-            $(".subline-level-1").map(function () {
-                if (this && this.innerText) {
-                    allTitles.push(this.innerText);
+            };
+            var peopleJsonVal=codeElems[peopleJsonId].innerText;
+            var jsonparse=JSON.parse(peopleJsonVal);
+
+            if (debug) {
+                console.log(peopleJsonId);
+                console.log(peopleJsonVal);
+                console.log(jsonparse.stringify);
+                console.log(jsonparse.included);
+                console.log(jsonparse.included.length)
+            }
+
+            for(var j=0; j<jsonparse.included.length; j++) {
+                var employeeObj=jsonparse.included[j].title;
+                var titleObj=jsonparse.included[j].primarySubtitle;
+                if(typeof(employeeObj)!== 'undefined') {
+                    if(employeeObj.text != "LinkedIn Member") {
+                        var employee=employeeObj.text;
+                        var title=titleObj.text;
+                        if (debug) console.log(employee + " - " + title);
+                        allEmps.push(employee);
+                        allTitles.push(title);
+                    }
                 }
-            });
+            }
 
-            window.scrollTo(0, scroll);
+            //Get previously stored values from userscript
+            var allEmpsPrev = JSON.parse(GM_getValue("employees", null)); if (allEmpsPrev == null) allEmpsPrev = [];
+            var allTitlesPrev = JSON.parse(GM_getValue("titles", null)); if (allTitlesPrev == null) allTitlesPrev = [];
+            //Merge the current and previous
+            var joinedEmps = allEmps.concat(allEmpsPrev);
+            var joinedTitles = allTitles.concat(allTitlesPrev);
 
-            //Look for end of page
-            if (Math.ceil($(window).scrollTop() + $(window).height()) == $(document).height()) {
-                if (debug) console.log("End of current page matched");
-                //Reset the scroll value. It will be reset anyways by the userscript reloading, but nice to have if needed to run this within browser console
-                scroll = 0;
-                //Get previously stored values from userscript
-                var allEmpsPrev = JSON.parse(GM_getValue("employees", null)); if (allEmpsPrev == null) allEmpsPrev = [];
-                var allTitlesPrev = JSON.parse(GM_getValue("titles", null)); if (allTitlesPrev == null) allTitlesPrev = [];
-                if (debug) console.log(allEmps)
-                //Combine previous results with current
-                var joinedEmps = allEmps.concat(allEmpsPrev);
-                var joinedTitles = allTitles.concat(allTitlesPrev);
-
-                //If allEmps.length == 0 we have reached a page without any employee data. so assume we are on last page+1:
+            //If allEmps.length == 0 we have reached a page without any employee data. so assume we are on last page+1:
                 if (allEmps.length > 0) {
                     if (debug) console.log("allEmps != null")
                     //Save values in userscript
@@ -80,24 +91,19 @@ var debug = false;
                     if (debug) console.log("allEmps == null")
                     //Combine names and titles
                     var combined = [];
-                    for (var i = 0; i < joinedEmps.length; i++) {
-                        combined.push(joinedEmps[i] + "|" + joinedTitles[i]);
+                    for (var k = 0; k < joinedEmps.length; k++) {
+                        combined.push(joinedEmps[k] + "|" + joinedTitles[k]);
                     }
                     if (debug) console.log(combined);
 
                     //Get only uniques since this is final execution of the script
-                    var uniqueAll = combined.filter((v, i, a) => a.indexOf(v) === i);
+                    var uniqueAll = combined.filter((v, k, a) => a.indexOf(v) === k);
 
                     console.log("Collected " + uniqueAll.length + " employees and titles..");
                     console.log(uniqueAll);
                     GM_deleteValue("employees");
                     GM_deleteValue("titles");
                 };
-            } else {
-                if (debug) console.log("Scrolling..");
-                scroll += 350;
-                printnames();
-            }
         }, 1000);
     };
     printnames();
