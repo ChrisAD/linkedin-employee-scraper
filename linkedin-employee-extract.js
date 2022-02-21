@@ -9,7 +9,7 @@
 // @grant GM_setValue
 // @grant GM_deleteValue
 // @require  https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js
-// @icon https://cdn2.hubspot.net/hubfs/4452610/favico-1.png
+// @icon https://riversecurity.eu/wordpress/wp-content/uploads/2020/06/cropped-3-32x32.png
 // ==/UserScript==
 
 //Set to true to turn on debugging
